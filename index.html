@@ -2200,6 +2200,13 @@
             try {
                 console.log('renderProducts() called');
                 console.log('productsGrid.innerHTML before:', productsGrid.innerHTML.substring(0, 100));
+                
+                // Skip if already rendered (prevent duplicate rendering)
+                if (productsGrid.innerHTML.trim() !== '' && productsGrid.innerHTML.trim() !== '<!-- Dynamically populated -->') {
+                    console.log('Products already rendered, skipping');
+                    return;
+                }
+                
                 let filtered = [...products];
                 console.log('Filtered products:', filtered.length);
 
