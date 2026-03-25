@@ -90,6 +90,17 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlud3l4cmJ4YXJic3d2dHFrdHFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NTYyNDIsImV4cCI6MjA5MDAzMjI0Mn0.7-Y1d71wd9PiobP7hauYxtHmgWsCYRON6mQUBLx9wdo';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log('Supabase initialized');
+        
+        // Global error handler
+        window.onerror = function(msg, url, line, col, error) {
+            console.error('Global error:', msg, 'at line', line, 'col', col);
+            console.error('Stack:', error ? error.stack : 'N/A');
+            return false;
+        };
+        
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Unhandled promise rejection:', e.reason);
+        });
     </script>
     
     <style>
