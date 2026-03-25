@@ -2136,8 +2136,13 @@
 
         // Initialize
         function init() {
+            console.log('init() called');
+            console.log('productsGrid:', productsGrid);
+            console.log('products:', products);
             renderFilters();
+            console.log('After renderFilters');
             renderProducts();
+            console.log('After renderProducts');
             updateCart();
             setupEventListeners();
         }
@@ -2177,7 +2182,10 @@
 
         // Render Products
         function renderProducts() {
+            console.log('renderProducts() called');
+            console.log('productsGrid.innerHTML before:', productsGrid.innerHTML.substring(0, 100));
             let filtered = [...products];
+            console.log('Filtered products:', filtered.length);
 
             // Filter by category
             if (currentCategory !== 'all') {
@@ -2246,6 +2254,7 @@
                     </div>
                 </article>
             `).join('');
+            console.log('productsGrid.innerHTML after:', productsGrid.innerHTML.substring(0, 100));
         }
 
         // Add to Cart
