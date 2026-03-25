@@ -91,6 +91,12 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log('Supabase initialized');
         
+        // Alert to confirm script runs
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded fired');
+            alert('JavaScript is running! Check console for debug info.');
+        });
+        
         // Global error handler
         window.onerror = function(msg, url, line, col, error) {
             console.error('Global error:', msg, 'at line', line, 'col', col);
