@@ -1,10 +1,5 @@
 // Supabase Configuration
-// Replace these values with your Supabase project credentials
+const SUPABASE_URL = 'https://ynwyxrbxarbswvtqktqa.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlud3l4cmJ4YXJic3d2dHFrdHFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NTYyNDIsImV4cCI6MjA5MDAzMjI0Mn0.7-Y1d71wd9PiobP7hauYxtHmgWsCYRON6mQUBLx9wdo';
 
-const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // e.g., https://xxxxx.supabase.co
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-
-// Initialize Supabase client
-const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-console.log('Supabase client initialized');
+// Supabase client loaded in HTML

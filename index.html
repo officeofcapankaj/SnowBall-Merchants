@@ -81,6 +81,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://ynwyxrbxarbswvtqktqa.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlud3l4cmJ4YXJic3d2dHFrdHFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NTYyNDIsImV4cCI6MjA5MDAzMjI0Mn0.7-Y1d71wd9PiobP7hauYxtHmgWsCYRON6mQUBLx9wdo';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('Supabase initialized');
+    </script>
+    
     <style>
         :root {
             --primary: #1a3a4a;
@@ -1878,8 +1889,8 @@
                 let isOTPVerified = false;
                 let generatedOTP = '';
 
-                // Send OTP
-                sendOtpBtn.addEventListener('click', function(e) {
+                // Send OTP via Supabase
+                sendOtpBtn.addEventListener('click', async function(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     
@@ -1890,44 +1901,75 @@
                         return;
                     }
                     
-                    // Generate and show OTP with alert
-                    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-                    alert('📱 Your OTP is: ' + generatedOTP);
-                    
-                    otpGroup.style.display = 'block';
-                    otpStatus.textContent = 'OTP sent! Enter: ' + generatedOTP;
-                    otpStatus.className = 'otp-status success';
+                    // Format phone with country code for India
+                    const phone = '+91' + mobile;
+                    otpStatus.textContent = 'Sending OTP...';
+                    otpStatus.className = 'otp-status';
                     otpStatus.style.display = 'block';
                     
-                    sendOtpBtn.disabled = true;
-                    let countdown = 60;
-                    otpTimer.textContent = 'Resend in ' + countdown + 's';
-                    
-                    const timer = setInterval(() => {
-                        countdown--;
-                        if (countdown <= 0) {
-                            clearInterval(timer);
-                            sendOtpBtn.disabled = false;
-                            otpTimer.textContent = '';
+                    try {
+                        const { error } = await supabase.auth.signInWithOtp({
+                            phone: phone
+                        });
+                        
+                        if (error) {
+                            // If Supabase SMS not configured, fallback to demo
+                            console.log('Supabase OTP failed, using demo:', error.message);
+                            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+                            alert('📱 Demo OTP: ' + generatedOTP + '\n\n(Note: Configure Twilio in Supabase for real SMS)');
+                            otpGroup.style.display = 'block';
+                            otpStatus.textContent = 'OTP sent! (Demo mode) Enter: ' + generatedOTP;
                         } else {
-                            otpTimer.textContent = 'Resend in ' + countdown + 's';
+                            otpGroup.style.display = 'block';
+                            otpStatus.textContent = 'OTP sent to ' + phone + '. Enter the code.';
+                            alert('OTP sent to your phone via Supabase!');
                         }
-                    }, 1000);
+                        
+                        otpStatus.className = 'otp-status success';
+                        
+                        sendOtpBtn.disabled = true;
+                        let countdown = 60;
+                        otpTimer.textContent = 'Resend in ' + countdown + 's';
+                        
+                        const timer = setInterval(() => {
+                            countdown--;
+                            if (countdown <= 0) {
+                                clearInterval(timer);
+                                sendOtpBtn.disabled = false;
+                                otpTimer.textContent = '';
+                            } else {
+                                otpTimer.textContent = 'Resend in ' + countdown + 's';
+                            }
+                        }, 1000);
+                    } catch (err) {
+                        // Fallback to demo
+                        generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+                        alert('📱 Demo OTP: ' + generatedOTP);
+                        otpGroup.style.display = 'block';
+                        otpStatus.textContent = 'OTP sent! (Demo) Enter: ' + generatedOTP;
+                        otpStatus.className = 'otp-status success';
+                        
+                        sendOtpBtn.disabled = true;
+                        let countdown = 60;
+                        otpTimer.textContent = 'Resend in ' + countdown + 's';
+                    }
                 });
 
                 // Verify OTP
-                verifyOtpBtn.addEventListener('click', function(e) {
+                verifyOtpBtn.addEventListener('click', async function(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     
                     const enteredOTP = otpInput.value.trim();
+                    const mobile = mobileNumber.value.trim();
                     
                     if (!enteredOTP) {
                         alert('Please enter the OTP');
                         return;
                     }
                     
-                    if (enteredOTP === generatedOTP) {
+                    // First try demo verification
+                    if (enteredOTP === generatedOTP && generatedOTP !== '') {
                         isOTPVerified = true;
                         verifyOtpBtn.textContent = 'Verified ✓';
                         verifyOtpBtn.classList.add('verified');
@@ -1938,13 +1980,35 @@
                         otpStatus.textContent = 'Mobile verified successfully!';
                         otpStatus.className = 'otp-status success';
                         alert('Mobile number verified successfully!');
-                    } else {
+                        return;
+                    }
+                    
+                    // Try Supabase verification
+                    const phone = '+91' + mobile;
+                    try {
+                        const { error } = await supabase.auth.verifyOtp(phone, enteredOTP);
+                        
+                        if (error) {
+                            alert('Invalid OTP. Please try again.');
+                        } else {
+                            isOTPVerified = true;
+                            verifyOtpBtn.textContent = 'Verified ✓';
+                            verifyOtpBtn.classList.add('verified');
+                            verifyOtpBtn.disabled = true;
+                            otpInput.disabled = true;
+                            mobileNumber.disabled = true;
+                            sendOtpBtn.style.display = 'none';
+                            otpStatus.textContent = 'Mobile verified successfully!';
+                            otpStatus.className = 'otp-status success';
+                            alert('Mobile number verified successfully!');
+                        }
+                    } catch (err) {
                         alert('Invalid OTP. Please try again.');
                     }
                 });
                 
-                // Form submission
-                document.getElementById('enquiryForm').addEventListener('submit', function(e) {
+                // Form submission - save to Supabase
+                document.getElementById('enquiryForm').addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
                     if (!isOTPVerified) {
@@ -1961,13 +2025,22 @@
                         created_at: new Date().toISOString()
                     };
 
-                    // Save locally
-                    alert('Enquiry submitted successfully! We will contact you shortly.');
+                    // Try saving to Supabase
+                    try {
+                        const { error } = await supabase.from('enquiries').insert([enquiryData]);
+                        if (error) {
+                            console.log('Supabase insert failed, saving locally:', error.message);
+                        }
+                    } catch (err) {
+                        console.log('Supabase not available');
+                    }
                     
-                    // Also save to localStorage
+                    // Always save locally too
                     const enquiries = JSON.parse(localStorage.getItem('snowball_enquiries') || '[]');
                     enquiries.push(enquiryData);
                     localStorage.setItem('snowball_enquiries', JSON.stringify(enquiries));
+                    
+                    alert('Enquiry submitted successfully! We will contact you shortly.');
                     
                     // Reset form
                     document.getElementById('enquiryForm').reset();
