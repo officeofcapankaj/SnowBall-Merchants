@@ -2150,13 +2150,11 @@
             try {
                 console.log('init() called');
                 
-                // Re-cache DOM elements in case they weren't ready
+                // Get the productsGrid element fresh
                 const grid = document.getElementById('productsGrid');
                 console.log('productsGrid element:', grid);
                 console.log('productsGrid exists:', !!grid);
                 if (grid) {
-                    productsGrid = grid; // Re-cache
-                    console.log('Re-cached productsGrid');
                     console.log('productsGrid innerHTML:', grid.innerHTML.substring(0, 200));
                 } else {
                     console.log('productsGrid still not found');
@@ -2232,23 +2230,27 @@
                     // Try using the cached productsGrid variable
                     console.log('Trying cached productsGrid:', !!productsGrid);
                     if (productsGrid) {
-                        productsGrid.innerHTML = products.map(product => `
-                            <article class="product-card" data-id="${product.id}">
-                                <div class="product-image">
-                                    <div class="placeholder-img">${product.category === 'yarn' ? '🧶' : '🧵'}</div>
-                                </div>
-                                <div class="product-info">
-                                    <span class="product-category">${product.category}</span>
-                                    <h3 class="product-name">${product.name}</h3>
-                                    <p class="product-material">${product.material}</p>
-                                    <p class="product-details">${product.details}</p>
-                                    <p class="product-price">$${product.price.toFixed(2)}</p>
-                                    <button class="btn-add-cart" onclick="addToCart(${product.id})" aria-label="Add ${product.name} to cart">Add to Cart</button>
-                                </div>
-                            </article>
-                        `).join('');
-                        console.log('Rendered using cached productsGrid');
-                        return;
+                        // Get fresh element
+                        const freshGrid = document.getElementById('productsGrid');
+                        if (freshGrid) {
+                            freshGrid.innerHTML = products.map(product => `
+                                <article class="product-card" data-id="${product.id}">
+                                    <div class="product-image">
+                                        <div class="placeholder-img">${product.category === 'yarn' ? '🧶' : '🧵'}</div>
+                                    </div>
+                                    <div class="product-info">
+                                        <span class="product-category">${product.category}</span>
+                                        <h3 class="product-name">${product.name}</h3>
+                                        <p class="product-material">${product.material}</p>
+                                        <p class="product-details">${product.details}</p>
+                                        <p class="product-price">$${product.price.toFixed(2)}</p>
+                                        <button class="btn-add-cart" onclick="addToCart(${product.id})" aria-label="Add ${product.name} to cart">Add to Cart</button>
+                                    </div>
+                                </article>
+                            `).join('');
+                            console.log('Rendered using fresh element from fallback');
+                            return;
+                        }
                     }
                     return;
                 }
@@ -2292,19 +2294,24 @@
             productsCount.textContent = `Showing ${filtered.length} product${filtered.length !== 1 ? 's' : ''}`;
 
             if (filtered.length === 0) {
-                productsGrid.innerHTML = `
-                    <div class="no-products">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <h3>No products found</h3>
-                        <p>Try adjusting your filters</p>
-                    </div>
-                `;
+                const grid = document.getElementById('productsGrid');
+                if (grid) {
+                    grid.innerHTML = `
+                        <div class="no-products">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <h3>No products found</h3>
+                            <p>Try adjusting your filters</p>
+                        </div>
+                    `;
+                }
                 return;
             }
 
-            productsGrid.innerHTML = filtered.map(product => `
+            const renderGrid = document.getElementById('productsGrid');
+            if (renderGrid) {
+                renderGrid.innerHTML = filtered.map(product => `
                 <article class="product-card" itemscope itemtype="https://schema.org/Product">
                     <div class="product-image ${product.category}" role="img" aria-label="${product.name} - ${product.category}">
                         ${product.category === 'yarn' ? `
@@ -2329,8 +2336,9 @@
                     </div>
                 </article>
             `).join('');
-            console.log('productsGrid.innerHTML after:', productsGrid.innerHTML.substring(0, 100));
-            } catch (err) {
+                console.log('renderGrid.innerHTML after:', renderGrid.innerHTML.substring(0, 100));
+            }
+            catch (err) {
                 console.error('Error in renderProducts():', err);
                 console.error('Stack:', err.stack);
             }
