@@ -1852,6 +1852,141 @@
     <div class="toast" id="toast"></div>
 
     <script>
+        // OTP Functionality - runs immediately
+        (function() {
+            // Wait for DOM ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initOTP);
+                return;
+            }
+            initOTP();
+            
+            function initOTP() {
+                const sendOtpBtn = document.getElementById('sendOtpBtn');
+                const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+                const mobileNumber = document.getElementById('mobileNumber');
+                const otpInput = document.getElementById('otpInput');
+                const otpGroup = document.getElementById('otpGroup');
+                const otpStatus = document.getElementById('otpStatus');
+                const submitEnquiryBtn = document.getElementById('submitEnquiryBtn');
+                const otpTimer = document.getElementById('otpTimer');
+
+                if (!sendOtpBtn || !mobileNumber) {
+                    return;
+                }
+                
+                let isOTPVerified = false;
+                let generatedOTP = '';
+
+                // Send OTP
+                sendOtpBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const mobile = mobileNumber.value.trim();
+                    
+                    if (!mobile || mobile.length !== 10 || !/^\d+$/.test(mobile)) {
+                        alert('Please enter a valid 10-digit mobile number');
+                        return;
+                    }
+                    
+                    // Generate and show OTP with alert
+                    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+                    alert('📱 Your OTP is: ' + generatedOTP);
+                    
+                    otpGroup.style.display = 'block';
+                    otpStatus.textContent = 'OTP sent! Enter: ' + generatedOTP;
+                    otpStatus.className = 'otp-status success';
+                    otpStatus.style.display = 'block';
+                    
+                    sendOtpBtn.disabled = true;
+                    let countdown = 60;
+                    otpTimer.textContent = 'Resend in ' + countdown + 's';
+                    
+                    const timer = setInterval(() => {
+                        countdown--;
+                        if (countdown <= 0) {
+                            clearInterval(timer);
+                            sendOtpBtn.disabled = false;
+                            otpTimer.textContent = '';
+                        } else {
+                            otpTimer.textContent = 'Resend in ' + countdown + 's';
+                        }
+                    }, 1000);
+                });
+
+                // Verify OTP
+                verifyOtpBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const enteredOTP = otpInput.value.trim();
+                    
+                    if (!enteredOTP) {
+                        alert('Please enter the OTP');
+                        return;
+                    }
+                    
+                    if (enteredOTP === generatedOTP) {
+                        isOTPVerified = true;
+                        verifyOtpBtn.textContent = 'Verified ✓';
+                        verifyOtpBtn.classList.add('verified');
+                        verifyOtpBtn.disabled = true;
+                        otpInput.disabled = true;
+                        mobileNumber.disabled = true;
+                        sendOtpBtn.style.display = 'none';
+                        otpStatus.textContent = 'Mobile verified successfully!';
+                        otpStatus.className = 'otp-status success';
+                        alert('Mobile number verified successfully!');
+                    } else {
+                        alert('Invalid OTP. Please try again.');
+                    }
+                });
+                
+                // Form submission
+                document.getElementById('enquiryForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    if (!isOTPVerified) {
+                        alert('Please verify your mobile number first');
+                        return;
+                    }
+
+                    const enquiryData = {
+                        contact_person: document.getElementById('contactName').value,
+                        firm_name: document.getElementById('firmName').value,
+                        mobile: mobileNumber.value,
+                        email: document.getElementById('enquiryEmail').value,
+                        requirements: document.getElementById('requirements').value,
+                        created_at: new Date().toISOString()
+                    };
+
+                    // Save locally
+                    alert('Enquiry submitted successfully! We will contact you shortly.');
+                    
+                    // Also save to localStorage
+                    const enquiries = JSON.parse(localStorage.getItem('snowball_enquiries') || '[]');
+                    enquiries.push(enquiryData);
+                    localStorage.setItem('snowball_enquiries', JSON.stringify(enquiries));
+                    
+                    // Reset form
+                    document.getElementById('enquiryForm').reset();
+                    isOTPVerified = false;
+                    otpGroup.style.display = 'none';
+                    sendOtpBtn.disabled = false;
+                    sendOtpBtn.style.display = 'block';
+                    sendOtpBtn.textContent = 'Send OTP';
+                    verifyOtpBtn.textContent = 'Verify';
+                    verifyOtpBtn.classList.remove('verified');
+                    verifyOtpBtn.disabled = false;
+                    otpInput.disabled = false;
+                    mobileNumber.disabled = false;
+                    otpStatus.textContent = '';
+                    document.getElementById('submitEnquiryBtn').disabled = true;
+                });
+            }
+        })();
+        
         // Product Data
         const products = [
             // Yarn Products
@@ -2298,164 +2433,6 @@
 
         // Initialize on load
         init();
-
-        // Enquiry Form OTP Functionality (Demo Mode)
-        const enquiryForm = document.getElementById('enquiryForm');
-        const sendOtpBtn = document.getElementById('sendOtpBtn');
-        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-        const mobileNumber = document.getElementById('mobileNumber');
-        const otpInput = document.getElementById('otpInput');
-        const otpGroup = document.getElementById('otpGroup');
-        const otpStatus = document.getElementById('otpStatus');
-        const submitEnquiryBtn = document.getElementById('submitEnquiryBtn');
-        const otpTimer = document.getElementById('otpTimer');
-
-        let isOTPVerified = false;
-        let timerInterval = null;
-        let generatedOTP = '';
-
-        // Demo OTP - generates locally
-        function generateDemoOTP() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
-        }
-
-        // Send OTP - Demo Mode - Always shows OTP on page
-        sendOtpBtn.addEventListener('click', () => {
-            const mobile = mobileNumber.value.trim();
-            
-            if (!mobile || mobile.length !== 10 || !/^\d+$/.test(mobile)) {
-                otpStatus.textContent = 'Please enter a valid 10-digit mobile number';
-                otpStatus.className = 'otp-status error';
-                otpStatus.style.display = 'block';
-                return;
-            }
-
-            // Generate OTP
-            generatedOTP = generateDemoOTP();
-            
-            // Show OTP directly on page (no alert needed)
-            otpGroup.style.display = 'block';
-            otpStatus.innerHTML = '<strong>📱 OTP: ' + generatedOTP + '</strong> (Enter this to verify)';
-            otpStatus.className = 'otp-status success';
-            otpStatus.style.display = 'block';
-            otpStatus.style.color = '#155724';
-            otpStatus.style.backgroundColor = '#d4edda';
-            otpStatus.style.padding = '15px';
-            otpStatus.style.border = '1px solid #c3e6cb';
-            otpStatus.style.borderRadius = '5px';
-            otpStatus.style.marginBottom = '15px';
-            
-            // Debug: Also alert to verify code runs
-            alert('OTP Generated: ' + generatedOTP);
-            
-            // Disable button, start timer
-            sendOtpBtn.disabled = true;
-            let countdown = 60;
-            otpTimer.textContent = 'Resend in ' + countdown + 's';
-            
-            const timer = setInterval(() => {
-                countdown--;
-                if (countdown <= 0) {
-                    clearInterval(timer);
-                    sendOtpBtn.disabled = false;
-                    otpTimer.textContent = '';
-                } else {
-                    otpTimer.textContent = 'Resend in ' + countdown + 's';
-                }
-            }, 1000);
-        });
-
-        // Verify OTP - Demo Mode
-        verifyOtpBtn.addEventListener('click', () => {
-            const enteredOTP = otpInput.value.trim();
-            
-            if (!enteredOTP) {
-                otpStatus.textContent = 'Please enter the OTP';
-                otpStatus.className = 'otp-status error';
-                otpStatus.style.display = 'block';
-                return;
-            }
-            
-            if (enteredOTP === generatedOTP) {
-                isOTPVerified = true;
-                verifyOtpBtn.textContent = 'Verified ✓';
-                verifyOtpBtn.classList.add('verified');
-                verifyOtpBtn.disabled = true;
-                otpInput.disabled = true;
-                mobileNumber.disabled = true;
-                sendOtpBtn.style.display = 'none';
-                otpStatus.textContent = 'Mobile verified successfully!';
-                otpStatus.className = 'otp-status success';
-                checkFormValidity();
-            } else {
-                otpStatus.textContent = 'Invalid OTP. Please try again.';
-                otpStatus.className = 'otp-status error';
-                otpStatus.style.display = 'block';
-            }
-        });
-
-        // Check form validity
-        function checkFormValidity() {
-            const contactName = document.getElementById('contactName').value.trim();
-            const email = document.getElementById('enquiryEmail').value.trim();
-            const requirements = document.getElementById('requirements').value.trim();
-            
-            if (contactName && email && requirements && isOTPVerified) {
-                submitEnquiryBtn.disabled = false;
-            }
-        }
-
-        // Add event listeners for form validation
-        document.getElementById('contactName').addEventListener('input', checkFormValidity);
-        document.getElementById('enquiryEmail').addEventListener('input', checkFormValidity);
-        document.getElementById('requirements').addEventListener('input', checkFormValidity);
-
-        // Submit Enquiry
-        enquiryForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            if (!isOTPVerified) {
-                otpStatus.textContent = 'Please verify your mobile number first';
-                otpStatus.className = 'otp-status error';
-                return;
-            }
-
-            const enquiryData = {
-                contact_person: document.getElementById('contactName').value,
-                firm_name: document.getElementById('firmName').value,
-                mobile: mobileNumber.value,
-                email: document.getElementById('enquiryEmail').value,
-                requirements: document.getElementById('requirements').value,
-                created_at: new Date().toISOString()
-            };
-
-            try {
-                // Save locally (offline mode)
-                showToast('Enquiry submitted successfully! We will contact you shortly.', 'success');
-                
-                // Also save to localStorage as backup
-                const enquiries = JSON.parse(localStorage.getItem('snowball_enquiries') || '[]');
-                enquiries.push(enquiryData);
-                localStorage.setItem('snowball_enquiries', JSON.stringify(enquiries));
-            }
-            
-            // Reset form
-            enquiryForm.reset();
-            isOTPVerified = false;
-            otpGroup.style.display = 'none';
-            sendOtpBtn.disabled = false;
-            sendOtpBtn.style.display = 'block';
-            sendOtpBtn.textContent = 'Send OTP';
-            verifyOtpBtn.textContent = 'Verify';
-            verifyOtpBtn.classList.remove('verified');
-            verifyOtpBtn.disabled = false;
-            otpInput.disabled = false;
-            mobileNumber.disabled = false;
-            otpStatus.textContent = '';
-            submitEnquiryBtn.disabled = true;
-            
-            if (timerInterval) clearInterval(timerInterval);
-        });
     </script>
 </body>
 </html>
