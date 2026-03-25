@@ -2180,6 +2180,16 @@
             init();
         }, 100);
 
+        // Additional fallback - render products after all scripts loaded
+        setTimeout(function() {
+            console.log('fallback renderProducts check');
+            const grid = document.getElementById('productsGrid');
+            if (grid && (grid.innerHTML.trim() === '' || grid.innerHTML.trim() === '<!-- Dynamically populated -->')) {
+                console.log('Products not rendered, forcing render');
+                renderProducts();
+            }
+        }, 500);
+
         // Render Material Filters
         function renderFilters() {
             console.log('renderFilters() called');
