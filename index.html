@@ -85,6 +85,8 @@
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        alert('Script is executing!');
+        
         // Supabase Configuration
         const SUPABASE_URL = 'https://ynwyxrbxarbswvtqktqa.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlud3l4cmJ4YXJic3d2dHFrdHFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NTYyNDIsImV4cCI6MjA5MDAzMjI0Mn0.7-Y1d71wd9PiobP7hauYxtHmgWsCYRON6mQUBLx9wdo';
@@ -1657,6 +1659,19 @@
                 </div>
                 <div class="products-grid" id="productsGrid">
                     <!-- Dynamically populated -->
+                    <article class="product-card" data-id="1">
+                        <div class="product-image">
+                            <div class="placeholder-img">🧶</div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">yarn</span>
+                            <h3 class="product-name">TEST PRODUCT - Merino Wool</h3>
+                            <p class="product-material">Wool</p>
+                            <p class="product-details">100% merino, DK weight</p>
+                            <p class="product-price">$18.99</p>
+                            <button class="btn-add-cart" onclick="addToCart(1)">Add to Cart</button>
+                        </div>
+                    </article>
                 </div>
             </div>
         </div>
