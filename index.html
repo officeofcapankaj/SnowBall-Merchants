@@ -2136,15 +2136,21 @@
 
         // Initialize
         function init() {
-            console.log('init() called');
-            console.log('productsGrid:', productsGrid);
-            console.log('products:', products);
-            renderFilters();
-            console.log('After renderFilters');
-            renderProducts();
-            console.log('After renderProducts');
-            updateCart();
-            setupEventListeners();
+            try {
+                console.log('init() called');
+                console.log('productsGrid:', productsGrid);
+                console.log('products:', products);
+                renderFilters();
+                console.log('After renderFilters');
+                renderProducts();
+                console.log('After renderProducts');
+                updateCart();
+                setupEventListeners();
+                console.log('init() completed successfully');
+            } catch (err) {
+                console.error('Error in init():', err);
+                console.error('Stack:', err.stack);
+            }
         }
 
         // Render Material Filters
@@ -2182,10 +2188,11 @@
 
         // Render Products
         function renderProducts() {
-            console.log('renderProducts() called');
-            console.log('productsGrid.innerHTML before:', productsGrid.innerHTML.substring(0, 100));
-            let filtered = [...products];
-            console.log('Filtered products:', filtered.length);
+            try {
+                console.log('renderProducts() called');
+                console.log('productsGrid.innerHTML before:', productsGrid.innerHTML.substring(0, 100));
+                let filtered = [...products];
+                console.log('Filtered products:', filtered.length);
 
             // Filter by category
             if (currentCategory !== 'all') {
@@ -2255,6 +2262,10 @@
                 </article>
             `).join('');
             console.log('productsGrid.innerHTML after:', productsGrid.innerHTML.substring(0, 100));
+            } catch (err) {
+                console.error('Error in renderProducts():', err);
+                console.error('Stack:', err.stack);
+            }
         }
 
         // Add to Cart
