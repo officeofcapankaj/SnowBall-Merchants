@@ -2150,14 +2150,16 @@
             try {
                 console.log('init() called');
                 
-                // Verify DOM elements exist
+                // Re-cache DOM elements in case they weren't ready
                 const grid = document.getElementById('productsGrid');
                 console.log('productsGrid element:', grid);
                 console.log('productsGrid exists:', !!grid);
-                console.log('productsGrid class:', grid ? grid.className : 'N/A');
-                console.log('productsGrid childCount:', grid ? grid.children.length : 'N/A');
                 if (grid) {
+                    productsGrid = grid; // Re-cache
+                    console.log('Re-cached productsGrid');
                     console.log('productsGrid innerHTML:', grid.innerHTML.substring(0, 200));
+                } else {
+                    console.log('productsGrid still not found');
                 }
                 
                 console.log('products:', products);
@@ -2220,10 +2222,39 @@
         function renderProducts() {
             try {
                 console.log('renderProducts() called');
-                console.log('productsGrid.innerHTML before:', productsGrid.innerHTML.substring(0, 100));
+                
+                // Get element fresh each time
+                const grid = document.getElementById('productsGrid');
+                console.log('grid in renderProducts:', !!grid);
+                
+                if (!grid) {
+                    console.error('productsGrid element NOT FOUND');
+                    // Try using the cached productsGrid variable
+                    console.log('Trying cached productsGrid:', !!productsGrid);
+                    if (productsGrid) {
+                        productsGrid.innerHTML = products.map(product => `
+                            <article class="product-card" data-id="${product.id}">
+                                <div class="product-image">
+                                    <div class="placeholder-img">${product.category === 'yarn' ? '🧶' : '🧵'}</div>
+                                </div>
+                                <div class="product-info">
+                                    <span class="product-category">${product.category}</span>
+                                    <h3 class="product-name">${product.name}</h3>
+                                    <p class="product-material">${product.material}</p>
+                                    <p class="product-details">${product.details}</p>
+                                    <p class="product-price">$${product.price.toFixed(2)}</p>
+                                    <button class="btn-add-cart" onclick="addToCart(${product.id})" aria-label="Add ${product.name} to cart">Add to Cart</button>
+                                </div>
+                            </article>
+                        `).join('');
+                        console.log('Rendered using cached productsGrid');
+                        return;
+                    }
+                    return;
+                }
                 
                 // Skip if already rendered (prevent duplicate rendering)
-                if (productsGrid.innerHTML.trim() !== '' && productsGrid.innerHTML.trim() !== '<!-- Dynamically populated -->') {
+                if (grid.innerHTML.trim() !== '' && grid.innerHTML.trim() !== '<!-- Dynamically populated -->') {
                     console.log('Products already rendered, skipping');
                     return;
                 }
