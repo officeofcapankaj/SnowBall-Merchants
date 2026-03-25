@@ -85,25 +85,11 @@
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        alert('Script is executing!');
-        
         // Supabase Configuration
         const SUPABASE_URL = 'https://ynwyxrbxarbswvtqktqa.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlud3l4cmJ4YXJic3d2dHFrdHFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NTYyNDIsImV4cCI6MjA5MDAzMjI0Mn0.7-Y1d71wd9PiobP7hauYxtHmgWsCYRON6mQUBLx9wdo';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log('Supabase initialized');
-        
-        // Global error handler
-        window.onerror = function(msg, url, line, col, error) {
-            console.error('Global error:', msg, 'at line', line, 'col', col);
-            console.error('Stack:', error ? error.stack : 'N/A');
-            alert('JavaScript Error: ' + msg + ' at line ' + line);
-            return false;
-        };
-        
-        window.addEventListener('unhandledrejection', function(e) {
-            console.error('Unhandled promise rejection:', e.reason);
-        });
     </script>
     
     <style>
@@ -1659,19 +1645,6 @@
                 </div>
                 <div class="products-grid" id="productsGrid">
                     <!-- Dynamically populated -->
-                    <article class="product-card" data-id="1">
-                        <div class="product-image">
-                            <div class="placeholder-img">🧶</div>
-                        </div>
-                        <div class="product-info">
-                            <span class="product-category">yarn</span>
-                            <h3 class="product-name">TEST PRODUCT - Merino Wool</h3>
-                            <p class="product-material">Wool</p>
-                            <p class="product-details">100% merino, DK weight</p>
-                            <p class="product-price">$18.99</p>
-                            <button class="btn-add-cart" onclick="addToCart(1)">Add to Cart</button>
-                        </div>
-                    </article>
                 </div>
             </div>
         </div>
@@ -2163,32 +2136,26 @@
 
         // Initialize
         function init() {
-            alert('init() called!');
-            try {
-                console.log('init() called');
-                
-                // Get the productsGrid element fresh
-                const grid = document.getElementById('productsGrid');
-                console.log('productsGrid element:', grid);
-                console.log('productsGrid exists:', !!grid);
-                if (grid) {
-                    console.log('productsGrid innerHTML:', grid.innerHTML.substring(0, 200));
-                } else {
-                    console.log('productsGrid still not found');
-                }
-                
-                console.log('products:', products);
-                renderFilters();
-                console.log('After renderFilters');
-                renderProducts();
-                console.log('After renderProducts');
-                updateCart();
-                setupEventListeners();
-                console.log('init() completed successfully');
-            } catch (err) {
-                console.error('Error in init():', err);
-                console.error('Stack:', err.stack);
+            console.log('init() called');
+            
+            // Get the productsGrid element fresh
+            const grid = document.getElementById('productsGrid');
+            console.log('productsGrid element:', grid);
+            console.log('productsGrid exists:', !!grid);
+            if (grid) {
+                console.log('productsGrid innerHTML:', grid.innerHTML.substring(0, 200));
+            } else {
+                console.log('productsGrid still not found');
             }
+            
+            console.log('products:', products);
+            renderFilters();
+            console.log('After renderFilters');
+            renderProducts();
+            console.log('After renderProducts');
+            updateCart();
+            setupEventListeners();
+            console.log('init() completed successfully');
         }
 
         // Call init after a small delay to ensure DOM is fully ready
@@ -2245,51 +2212,25 @@
 
         // Render Products
         function renderProducts() {
-            try {
-                console.log('renderProducts() called');
-                
-                // Get element fresh each time
-                const grid = document.getElementById('productsGrid');
-                console.log('grid in renderProducts:', !!grid);
-                
-                if (!grid) {
-                    console.error('productsGrid element NOT FOUND');
-                    // Try using the cached productsGrid variable
-                    console.log('Trying cached productsGrid:', !!productsGrid);
-                    if (productsGrid) {
-                        // Get fresh element
-                        const freshGrid = document.getElementById('productsGrid');
-                        if (freshGrid) {
-                            freshGrid.innerHTML = products.map(product => `
-                                <article class="product-card" data-id="${product.id}">
-                                    <div class="product-image">
-                                        <div class="placeholder-img">${product.category === 'yarn' ? '🧶' : '🧵'}</div>
-                                    </div>
-                                    <div class="product-info">
-                                        <span class="product-category">${product.category}</span>
-                                        <h3 class="product-name">${product.name}</h3>
-                                        <p class="product-material">${product.material}</p>
-                                        <p class="product-details">${product.details}</p>
-                                        <p class="product-price">$${product.price.toFixed(2)}</p>
-                                        <button class="btn-add-cart" onclick="addToCart(${product.id})" aria-label="Add ${product.name} to cart">Add to Cart</button>
-                                    </div>
-                                </article>
-                            `).join('');
-                            console.log('Rendered using fresh element from fallback');
-                            return;
-                        }
-                    }
-                    return;
-                }
-                
-                // Skip if already rendered (prevent duplicate rendering)
-                if (grid.innerHTML.trim() !== '' && grid.innerHTML.trim() !== '<!-- Dynamically populated -->') {
-                    console.log('Products already rendered, skipping');
-                    return;
-                }
-                
-                let filtered = [...products];
-                console.log('Filtered products:', filtered.length);
+            console.log('renderProducts() called');
+            
+            // Get element fresh each time
+            const grid = document.getElementById('productsGrid');
+            console.log('grid in renderProducts:', !!grid);
+            
+            if (!grid) {
+                console.error('productsGrid element NOT FOUND');
+                return;
+            }
+            
+            // Skip if already rendered (prevent duplicate rendering)
+            if (grid.innerHTML.trim() !== '' && grid.innerHTML.trim() !== '<!-- Dynamically populated -->') {
+                console.log('Products already rendered, skipping');
+                return;
+            }
+            
+            let filtered = [...products];
+            console.log('Filtered products:', filtered.length);
 
             // Filter by category
             if (currentCategory !== 'all') {
@@ -2321,24 +2262,19 @@
             productsCount.textContent = `Showing ${filtered.length} product${filtered.length !== 1 ? 's' : ''}`;
 
             if (filtered.length === 0) {
-                const grid = document.getElementById('productsGrid');
-                if (grid) {
-                    grid.innerHTML = `
-                        <div class="no-products">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <h3>No products found</h3>
-                            <p>Try adjusting your filters</p>
-                        </div>
-                    `;
-                }
+                grid.innerHTML = `
+                    <div class="no-products">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <h3>No products found</h3>
+                        <p>Try adjusting your filters</p>
+                    </div>
+                `;
                 return;
             }
 
-            const renderGrid = document.getElementById('productsGrid');
-            if (renderGrid) {
-                renderGrid.innerHTML = filtered.map(product => `
+            grid.innerHTML = filtered.map(product => `
                 <article class="product-card" itemscope itemtype="https://schema.org/Product">
                     <div class="product-image ${product.category}" role="img" aria-label="${product.name} - ${product.category}">
                         ${product.category === 'yarn' ? `
@@ -2363,12 +2299,7 @@
                     </div>
                 </article>
             `).join('');
-                console.log('renderGrid.innerHTML after:', renderGrid.innerHTML.substring(0, 100));
-            }
-            catch (err) {
-                console.error('Error in renderProducts():', err);
-                console.error('Stack:', err.stack);
-            }
+            console.log('grid.innerHTML after:', grid.innerHTML.substring(0, 100));
         }
 
         // Add to Cart
