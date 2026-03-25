@@ -2338,6 +2338,15 @@
             otpStatus.innerHTML = '<strong>📱 OTP: ' + generatedOTP + '</strong> (Enter this to verify)';
             otpStatus.className = 'otp-status success';
             otpStatus.style.display = 'block';
+            otpStatus.style.color = '#155724';
+            otpStatus.style.backgroundColor = '#d4edda';
+            otpStatus.style.padding = '15px';
+            otpStatus.style.border = '1px solid #c3e6cb';
+            otpStatus.style.borderRadius = '5px';
+            otpStatus.style.marginBottom = '15px';
+            
+            // Debug: Also alert to verify code runs
+            alert('OTP Generated: ' + generatedOTP);
             
             // Disable button, start timer
             sendOtpBtn.disabled = true;
