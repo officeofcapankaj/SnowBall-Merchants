@@ -1979,6 +1979,7 @@
                         sendOtpBtn.style.display = 'none';
                         otpStatus.textContent = 'Mobile verified successfully!';
                         otpStatus.className = 'otp-status success';
+                        submitEnquiryBtn.disabled = false; // Enable submit button
                         alert('Mobile number verified successfully!');
                         return;
                     }
@@ -2000,6 +2001,7 @@
                             sendOtpBtn.style.display = 'none';
                             otpStatus.textContent = 'Mobile verified successfully!';
                             otpStatus.className = 'otp-status success';
+                            submitEnquiryBtn.disabled = false; // Enable submit button
                             alert('Mobile number verified successfully!');
                         }
                     } catch (err) {
