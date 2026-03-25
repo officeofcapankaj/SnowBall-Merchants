@@ -2153,6 +2153,12 @@
             }
         }
 
+        // Call init after a small delay to ensure DOM is fully ready
+        setTimeout(function() {
+            console.log('setTimeout calling init');
+            init();
+        }, 100);
+
         // Render Material Filters
         function renderFilters() {
             console.log('renderFilters() called');
