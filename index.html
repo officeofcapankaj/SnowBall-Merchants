@@ -2138,7 +2138,17 @@
         function init() {
             try {
                 console.log('init() called');
-                console.log('productsGrid:', productsGrid);
+                
+                // Verify DOM elements exist
+                const grid = document.getElementById('productsGrid');
+                console.log('productsGrid element:', grid);
+                console.log('productsGrid exists:', !!grid);
+                console.log('productsGrid class:', grid ? grid.className : 'N/A');
+                console.log('productsGrid childCount:', grid ? grid.children.length : 'N/A');
+                if (grid) {
+                    console.log('productsGrid innerHTML:', grid.innerHTML.substring(0, 200));
+                }
+                
                 console.log('products:', products);
                 renderFilters();
                 console.log('After renderFilters');
