@@ -2155,7 +2155,10 @@
 
         // Render Material Filters
         function renderFilters() {
+            console.log('renderFilters() called');
+            console.log('products for filters:', products);
             const materials = [...new Set(products.map(p => p.material))];
+            console.log('Unique materials:', materials);
             materialFilters.innerHTML = materials.map(material => {
                 const count = products.filter(p => p.material === material).length;
                 return `
