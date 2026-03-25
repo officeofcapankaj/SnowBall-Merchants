@@ -2319,24 +2319,23 @@
             return Math.floor(100000 + Math.random() * 900000).toString();
         }
 
-        // Send OTP - Demo Mode
+        // Send OTP - Demo Mode - Always shows OTP on page
         sendOtpBtn.addEventListener('click', () => {
             const mobile = mobileNumber.value.trim();
             
             if (!mobile || mobile.length !== 10 || !/^\d+$/.test(mobile)) {
-                alert('Please enter a valid 10-digit mobile number');
+                otpStatus.textContent = 'Please enter a valid 10-digit mobile number';
+                otpStatus.className = 'otp-status error';
+                otpStatus.style.display = 'block';
                 return;
             }
 
             // Generate OTP
             generatedOTP = generateDemoOTP();
             
-            // Show in alert
-            alert('📱 OTP for ' + mobile + ': ' + generatedOTP);
-            
-            // Show OTP field
+            // Show OTP directly on page (no alert needed)
             otpGroup.style.display = 'block';
-            otpStatus.textContent = 'OTP sent! Enter: ' + generatedOTP;
+            otpStatus.innerHTML = '<strong>📱 OTP: ' + generatedOTP + '</strong> (Enter this to verify)';
             otpStatus.className = 'otp-status success';
             otpStatus.style.display = 'block';
             
@@ -2362,7 +2361,9 @@
             const enteredOTP = otpInput.value.trim();
             
             if (!enteredOTP) {
-                alert('Please enter the OTP');
+                otpStatus.textContent = 'Please enter the OTP';
+                otpStatus.className = 'otp-status error';
+                otpStatus.style.display = 'block';
                 return;
             }
             
@@ -2378,7 +2379,9 @@
                 otpStatus.className = 'otp-status success';
                 checkFormValidity();
             } else {
-                alert('Invalid OTP. Please try again.');
+                otpStatus.textContent = 'Invalid OTP. Please try again.';
+                otpStatus.className = 'otp-status error';
+                otpStatus.style.display = 'block';
             }
         });
 
