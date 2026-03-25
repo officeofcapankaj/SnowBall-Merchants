@@ -2299,7 +2299,7 @@
         // Initialize on load
         init();
 
-        // Enquiry Form OTP Functionality (Supabase)
+        // Enquiry Form OTP Functionality (Demo Mode)
         const enquiryForm = document.getElementById('enquiryForm');
         const sendOtpBtn = document.getElementById('sendOtpBtn');
         const verifyOtpBtn = document.getElementById('verifyOtpBtn');
@@ -2312,125 +2312,73 @@
 
         let isOTPVerified = false;
         let timerInterval = null;
-        let verifiedPhone = '';
+        let generatedOTP = '';
 
-        // Supabase config - Replace with your credentials
-        const SUPABASE_URL = 'https://your-project.supabase.co';
-        const SUPABASE_ANON_KEY = 'your-anon-key';
+        // Demo OTP - generates locally
+        function generateDemoOTP() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
 
-        // Send OTP via Supabase
-        sendOtpBtn.addEventListener('click', async () => {
+        // Send OTP - Demo Mode
+        sendOtpBtn.addEventListener('click', () => {
             const mobile = mobileNumber.value.trim();
             
             if (!mobile || mobile.length !== 10 || !/^\d+$/.test(mobile)) {
-                otpStatus.textContent = 'Please enter a valid 10-digit mobile number';
-                otpStatus.className = 'otp-status error';
+                alert('Please enter a valid 10-digit mobile number');
                 return;
             }
 
-            const formattedPhone = '+91' + mobile;
+            // Generate OTP
+            generatedOTP = generateDemoOTP();
+            
+            // Show in alert
+            alert('📱 OTP for ' + mobile + ': ' + generatedOTP);
+            
+            // Show OTP field
+            otpGroup.style.display = 'block';
+            otpStatus.textContent = 'OTP sent! Enter: ' + generatedOTP;
+            otpStatus.className = 'otp-status success';
+            otpStatus.style.display = 'block';
+            
+            // Disable button, start timer
             sendOtpBtn.disabled = true;
-            otpStatus.textContent = 'Sending OTP...';
-            otpStatus.className = 'otp-status';
-
-            try {
-                const response = await fetch(`${SUPABASE_URL}/auth/v1/otp`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        phone: formattedPhone,
-                        options: {
-                            channel: 'sms'
-                        }
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok || data.message?.includes('sent')) {
-                    otpGroup.style.display = 'block';
-                    otpStatus.textContent = `OTP sent to ${mobile}`;
-                    otpStatus.className = 'otp-status success';
-
-                    // Start timer
-                    let countdown = 60;
-                    otpTimer.textContent = `Resend OTP in ${countdown}s`;
-                    
-                    if (timerInterval) clearInterval(timerInterval);
-                    timerInterval = setInterval(() => {
-                        countdown--;
-                        if (countdown > 0) {
-                            otpTimer.textContent = `Resend OTP in ${countdown}s`;
-                        } else {
-                            clearInterval(timerInterval);
-                            sendOtpBtn.disabled = false;
-                            otpTimer.textContent = '';
-                        }
-                    }, 1000);
+            let countdown = 60;
+            otpTimer.textContent = 'Resend in ' + countdown + 's';
+            
+            const timer = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    sendOtpBtn.disabled = false;
+                    otpTimer.textContent = '';
                 } else {
-                    throw new Error(data.error || 'Failed to send OTP');
+                    otpTimer.textContent = 'Resend in ' + countdown + 's';
                 }
-            } catch (error) {
-                console.error('OTP Error:', error);
-                otpStatus.textContent = 'Error sending OTP. Please try again.';
-                otpStatus.className = 'otp-status error';
-                sendOtpBtn.disabled = false;
-            }
+            }, 1000);
         });
 
-        // Verify OTP
-        verifyOtpBtn.addEventListener('click', async () => {
+        // Verify OTP - Demo Mode
+        verifyOtpBtn.addEventListener('click', () => {
             const enteredOTP = otpInput.value.trim();
-            const mobile = mobileNumber.value.trim();
             
             if (!enteredOTP) {
-                otpStatus.textContent = 'Please enter the OTP';
-                otpStatus.className = 'otp-status error';
+                alert('Please enter the OTP');
                 return;
             }
-
-            const formattedPhone = '+91' + mobile;
-            otpStatus.textContent = 'Verifying...';
-            otpStatus.className = 'otp-status';
-
-            try {
-                const response = await fetch(`${SUPABASE_URL}/auth/v1/verify`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        phone: formattedPhone,
-                        token: enteredOTP,
-                        type: 'sms'
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.user) {
-                    isOTPVerified = true;
-                    verifiedPhone = mobile;
-                    verifyOtpBtn.textContent = 'Verified ✓';
-                    verifyOtpBtn.classList.add('verified');
-                    verifyOtpBtn.disabled = true;
-                    otpInput.disabled = true;
-                    mobileNumber.disabled = true;
-                    sendOtpBtn.style.display = 'none';
-                    otpStatus.textContent = 'Mobile number verified successfully!';
-                    otpStatus.className = 'otp-status success';
-                    checkFormValidity();
-                } else {
-                    throw new Error(data.error || 'Invalid OTP');
-                }
-            } catch (error) {
-                console.error('Verification Error:', error);
-                otpStatus.textContent = 'Invalid OTP. Please try again.';
-                otpStatus.className = 'otp-status error';
+            
+            if (enteredOTP === generatedOTP) {
+                isOTPVerified = true;
+                verifyOtpBtn.textContent = 'Verified ✓';
+                verifyOtpBtn.classList.add('verified');
+                verifyOtpBtn.disabled = true;
+                otpInput.disabled = true;
+                mobileNumber.disabled = true;
+                sendOtpBtn.style.display = 'none';
+                otpStatus.textContent = 'Mobile verified successfully!';
+                otpStatus.className = 'otp-status success';
+                checkFormValidity();
+            } else {
+                alert('Invalid OTP. Please try again.');
             }
         });
 
@@ -2470,27 +2418,10 @@
             };
 
             try {
-                // Save to Supabase
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/enquiries`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify(enquiryData)
-                });
-
-                if (response.ok) {
-                    showToast('Enquiry submitted successfully! We will contact you shortly.', 'success');
-                } else {
-                    throw new Error('Failed to save enquiry');
-                }
-            } catch (error) {
-                console.error('Error saving enquiry:', error);
-                showToast('Enquiry submitted (offline mode)', 'success');
-                // Also save locally as backup
+                // Save locally (offline mode)
+                showToast('Enquiry submitted successfully! We will contact you shortly.', 'success');
+                
+                // Also save to localStorage as backup
                 const enquiries = JSON.parse(localStorage.getItem('snowball_enquiries') || '[]');
                 enquiries.push(enquiryData);
                 localStorage.setItem('snowball_enquiries', JSON.stringify(enquiries));
